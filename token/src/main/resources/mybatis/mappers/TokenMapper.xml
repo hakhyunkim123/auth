@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.token.mapper.TokenMapper">
+
+	<resultMap id="refreshTokenResult" type="com.token.dto.RefreshToken">
+		<result column="username" property="username" />
+		<result column="service_code" property="serviceCode" />
+		<result column="token" property="token" />
+	</resultMap>
+	
+	<select id="readRefreshToken" parameterType="map" resultMap="refreshTokenResult">
+		SELECT * 
+		FROM refresh_token 
+		WHERE username = #{username}
+		AND service_code = #{serviceCode}
+ 	</select>
+ 	
+ 	<select id="countRefreshToken" parameterType="map" resultType="int">
+		SELECT COUNT(*) 
+		FROM refresh_token 
+		WHERE username = #{username}
+		AND service_code = #{serviceCode}
+ 	</select>
+     
+	<insert id="createRefreshToken" parameterType="com.token.dto.RefreshToken">
+		INSERT INTO refresh_token 
+			(username, service_code, token)
+			VALUES (#{username}, #{serviceCode}, #{token})
+	</insert>
+    
+	<delete id="deleteRefreshToken" parameterType="map">
+		DELETE 
+		FROM refresh_token
+		WHERE username = #{username}
+		AND service_code = #{serviceCode}
+	</delete>
+    
+    <update id="updateRefreshToken" parameterType="com.token.dto.RefreshToken">
+    	UPDATE refresh_token
+    	SET token = #{token}
+    	WHERE username = #{username}
+    	AND service_code = #{serviceCode}
+    </update>
+
+</mapper>

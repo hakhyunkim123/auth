@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.token.mapper.PrivateKeyMapper">
+
+	<resultMap id="PrivateKeyResult" type="com.token.dto.JWKDto">
+		<result column="kid" property="kid" />
+		<result column="encrypted_key" property="encryptedKey" />
+	</resultMap>
+	
+	<select id="readPrivateKey" parameterType="String" resultMap="PrivateKeyResult">
+		SELECT * 
+		FROM jwk 
+		WHERE kid = #{kid}
+ 	</select>
+ 	
+ 	<select id="readAllKeys" resultMap="PrivateKeyResult">
+		SELECT * 
+		FROM jwk
+ 	</select>
+     
+	<insert id="createPrivateKey" parameterType="com.token.dto.JWKDto">
+		INSERT INTO jwk (kid, encrypted_key)
+			VALUES (#{kid}, #{encryptedKey})
+	</insert>
+    
+	<delete id="deletePrivateKey" parameterType="String">
+		DELETE 
+		FROM jwk
+		WHERE kid = #{kid}
+	</delete>
+    
+    <update id="updatePrivateKey" parameterType="com.token.dto.JWKDto">
+    	UPDATE jwk
+    	SET key = #{encrypted_key}
+    	WHERE encrypted_key = #{encryptedKey}
+    </update>
+
+</mapper>

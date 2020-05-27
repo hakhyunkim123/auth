@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.test.mapper.RelayMapper">
+
+	<resultMap id="serviceMappingResultMap" type="com.test.dto.VertifyDto">
+		<result column="service_code" property="code" />
+		<result column="ip" property="ip" />
+	</resultMap>
+	
+	<select id="readIpListByServiceCode" parameterType="String" resultType="String">
+		SELECT ip
+		FROM service_mapping 
+		WHERE service_code = #{serviceCode}
+ 	</select>
+ 	
+ 	<select id="readAllServiceMapping" resultMap="serviceMappingResultMap">
+		SELECT * 
+		FROM service_mapping
+ 	</select>
+   
+</mapper>
