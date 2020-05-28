@@ -43,8 +43,7 @@ public class RelayUtils {
 	}
 	
 	public static HttpResponse<String> callSvcApi(String serializedToken, String code) {
-		if(code.equals("SLC")) code = "svc1";
-		else code = "svc2";
+		code = code.toLowerCase();
 		String svcUrl = "http://simple-"+ code + ".test-mtls.svc.cluster.local:8000/" + code;
 		
 		System.out.println("url: " + svcUrl );

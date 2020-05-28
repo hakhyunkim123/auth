@@ -13,21 +13,21 @@ import kong.unirest.Unirest;
 @RestController
 public class SimpleController {
 	
-	@GetMapping("/svc1")
+	@GetMapping("/slc")
 	public ResponseEntity text1(@RequestHeader(value = "test-auth", required = false) String token){
 		
 		if(token == null) token = "faded...;;;";
-		String resultText = "This is Service 1" + "\n" 
+		String resultText = "This is SLC SERVICE" + "\n" 
 		+ "Token: " + token + "\n";
 		
 		return new ResponseEntity<>(resultText, HttpStatus.OK);
 	}
 	
-	@GetMapping("/svc2")
+	@GetMapping("/report")
 	public ResponseEntity text2(@RequestHeader(value = "test-auth", required = false) String token){
 		
 		if(token == null) token = "faded...;;;";
-		String resultText = "This is Service 2" + "\n" 
+		String resultText = "This is REPORT SERVICE" + "\n" 
 				+ "Token: " + token + "\n";
 		
 		return new ResponseEntity<>(resultText, HttpStatus.OK);

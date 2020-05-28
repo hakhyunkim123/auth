@@ -103,7 +103,7 @@ public class RelayController {
 			HttpResponse<String> response = RelayUtils.callSvcApi(accessTokenSerialized, code);
 			
 			if(response.getStatus() != 200) {
-				String errorMessage = "[relay] call " + code + "API Error!\n"
+				String errorMessage = "[relay] call " + code + " API Error!\n"
 						+ "code : " + Integer.toString(response.getStatus()) + "\n"
 						+ "message : " + response.getBody(); 
 				return new ResponseEntity<>(errorMessage, HttpStatus.SERVICE_UNAVAILABLE);
