@@ -59,6 +59,15 @@ public class TokenService {
 		log.info("[DECODED] {}", jwk.getKeyID());
 		log.info("[DECODED] {}", jwk.toJSONString());
 		
+		boolean existed = false;
+		for(JWK key : CommConstants.jwkList) {
+			if(key.getKeyID().trim().equals(kid)) {
+				existed = true;
+				break;
+			}
+		}
+		if(!existed) CommConstants.jwkList.add(jwk.toPublicJWK());
+		
 		return jwk;
 	}
 	
@@ -78,11 +87,16 @@ public class TokenService {
 	}
 	
 	public ReturnTokens genToken(String issuer, String serviceCode, 
-			String username, String clientType) throws JOSEException {
+			String username, String clientType) throws Exception {
 		
 		JWK jwk = getJWK(issuer);
 		
-		if(jwk == null) return null ;
+		if(jwk == null) {
+			log.info("no key..");
+			JWKDto jwkDto = TokenManager.makeJWK(issuer);
+			privateKeyMapper.createPrivateKey(jwkDto);
+			jwk = getJWK(issuer);
+		}
 		
 		String accessToken = genAccessToken(jwk, issuer, serviceCode, username, clientType);
 		String refreshToken = genRefreshToken(jwk, issuer, serviceCode, username, clientType);
@@ -102,7 +116,7 @@ public class TokenService {
 		JWSSigner signer = null;
 		signer = new RSASSASigner(privateKey);
 
-		Date expiredTime = new Date(new Date().getTime() + 60 * 1000 * 60);
+		Date expiredTime = new Date(new Date().getTime() + 60 * 1000 * 5);
 		// make access token with claim set
 		SignedJWT accessToken = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), 
 				TokenManager.makeClaimSet(issuer, serviceCode, clientType, username, expiredTime));
@@ -212,5 +226,9 @@ public class TokenService {
 			return;
 		}
 		
+	}
+	
+	public void insertKey(JWKDto jwk) {
+		privateKeyMapper.createPrivateKey(jwk);
 	}
 }

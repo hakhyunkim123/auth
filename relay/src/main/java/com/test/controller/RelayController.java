@@ -59,9 +59,9 @@ public class RelayController {
 		
 		List<String> serviceMapping = relayMapper.readIpListByServiceCode(code);
 		
-		for(String iptest : serviceMapping) {
-			log.info("[IP] {}" , iptest);
-		}
+//		for(String iptest : serviceMapping) {
+//			log.info("[IP] {}" , iptest);
+//		}
 		
 		// check code
 		if(serviceMapping.size() == 0) {
@@ -80,7 +80,7 @@ public class RelayController {
 			
 			// make new token
 			HttpResponse<ReturnTokens> genJwtResponse =
-					RelayUtils.callGenJWT(RelayConstants.genJWTUrl, code, "ITSM", code, ip);
+					RelayUtils.callGenJWT(RelayConstants.genJWTUrl, "SHB", "ITSM", code, ip);
 	
 			log.info("generate Token finished [{}]", genJwtResponse.getStatus());
 			
@@ -115,20 +115,24 @@ public class RelayController {
 		
 		// Token is existed
 		else {
+			log.info("token is existed!");
 			SignedJWT token = RelayConstants.accessTokenList.get(code);
 			
 			// existed token is expired..
 			if(RelayUtils.isExpired(token)) {
+				log.info("expired token!");
 				// remove existed token
 				RelayConstants.accessTokenList.remove(code);
 				
 				SignedJWT refreshToken = RelayConstants.refreshTokenList.get(code);
 				
 				// call make new token
+				log.info("call new JWT!");
 				HttpResponse<String> genJwtResponse =
 						RelayUtils.callRefreshTokenApi(refreshToken.serialize());
 				
 				String serializedNewToken = genJwtResponse.getBody();
+				log.info("new token : {}", serializedNewToken);
 				// update token
 				token = RelayUtils.parseToken(serializedNewToken);
 				
@@ -137,10 +141,122 @@ public class RelayController {
 				
 			}
 			
+			
 			String serializedToken = token.serialize();
 			
 			// call token
+			log.info("call service API");
 			HttpResponse<String> response = RelayUtils.callSvcApi(serializedToken, code);
+				
+			if(response.getStatus() != 200) {
+				String errorMessage = "[relay] call " + code + "API Error!\n"
+						+ "code : " + Integer.toString(response.getStatus()) + "\n"
+						+ "message : " + response.getBody(); 
+				return new ResponseEntity<>(errorMessage, HttpStatus.SERVICE_UNAVAILABLE);
+			}
+			else {
+				message = response.getBody();
+			}
+		}
+	
+		return new ResponseEntity<>(message, HttpStatus.OK);
+	}
+	
+	@PostMapping("/relay/web")
+	public ResponseEntity  goReportFromITSM(
+			@RequestHeader(value="code") String code,
+			@RequestHeader(value="ip") String ip){
+		
+		List<String> serviceMapping = relayMapper.readIpListByServiceCode(code);
+		
+//		for(String iptest : serviceMapping) {
+//			log.info("[IP] {}" , iptest);
+//		}
+		
+		// check code
+		if(serviceMapping.size() == 0) {
+			String errorMessage = "[CODE] " + code + " is not found.";
+			return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
+		}
+		
+		// check ip
+		if(!serviceMapping.contains(ip.trim())) {
+			String errorMessage = "[IP] " + ip + " is not matched." + serviceMapping.contains(ip);
+			return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
+		}
+		
+		// check tokenList
+		if(!RelayConstants.accessTokenList.containsKey(code)) {
+			
+			// make new token
+			HttpResponse<ReturnTokens> genJwtResponse =
+					RelayUtils.callGenJWT(RelayConstants.genJWTUrl, "SHB", "ITSM", code, ip);
+	
+			log.info("generate Token finished [{}]", genJwtResponse.getStatus());
+			
+//			String accessTokenSerialized = genJwtResponse.getBody().getObject().get("accessTokenSerialized").toString();
+//			String refreshTokenSerialized = genJwtResponse.getBody().getObject().get("refreshTokenSerialized").toString();
+			
+			String accessTokenSerialized = genJwtResponse.getBody().getAccessTokenSerialized();
+			String refreshTokenSerialized = genJwtResponse.getBody().getRefreshTokenSerialized();
+			
+			log.info("access : {} / refresh : {}", accessTokenSerialized, refreshTokenSerialized);
+			
+			SignedJWT accessToken = RelayUtils.parseToken(accessTokenSerialized);
+			SignedJWT refreshToken = RelayUtils.parseToken(refreshTokenSerialized);
+			
+			// add Token in TokenList
+			RelayConstants.accessTokenList.put(code, accessToken);
+			RelayConstants.refreshTokenList.put(code, refreshToken);
+	
+			// call SVC API
+			HttpResponse<String> response = RelayUtils.callSvcApi(accessTokenSerialized, "REPORT");
+			
+			if(response.getStatus() != 200) {
+				String errorMessage = "[relay] call " + code + " API Error!\n"
+						+ "code : " + Integer.toString(response.getStatus()) + "\n"
+						+ "message : " + response.getBody(); 
+				return new ResponseEntity<>(errorMessage, HttpStatus.SERVICE_UNAVAILABLE);
+			}
+			else {
+				message = response.getBody();
+			}
+		}
+		
+		// Token is existed
+		else {
+			log.info("token is existed!");
+			SignedJWT token = RelayConstants.accessTokenList.get(code);
+			
+			// existed token is expired..
+			if(RelayUtils.isExpired(token)) {
+				log.info("expired token!");
+				// remove existed token
+				RelayConstants.accessTokenList.remove(code);
+				
+				SignedJWT refreshToken = RelayConstants.refreshTokenList.get(code);
+				
+				// call make new token
+				log.info("call new JWT!");
+				HttpResponse<String> genJwtResponse =
+						RelayUtils.callRefreshTokenApi(refreshToken.serialize());
+				
+				String serializedNewToken = genJwtResponse.getBody();
+				log.info("new token : {}", serializedNewToken);
+				// update token
+				token = RelayUtils.parseToken(serializedNewToken);
+				
+				// add new token
+				RelayConstants.accessTokenList.put(code, token);
+				
+			}
+			
+			
+			String serializedToken = token.serialize();
+			
+			// call token
+			log.info("call service API");
+			HttpResponse<String> response = RelayUtils.callSvcApi(serializedToken, "REPORT");
 				
 			if(response.getStatus() != 200) {
 				String errorMessage = "[relay] call " + code + "API Error!\n"

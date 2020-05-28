@@ -46,7 +46,7 @@ public class TokenController {
 			@RequestHeader(value="issuer") String issuer,
 			@RequestHeader(value="clientType") String clientType,
 			@RequestHeader(value="username") String username,
-			@RequestHeader(value="subject") String subject) throws JOSEException {
+			@RequestHeader(value="subject") String subject) throws Exception {
 		
 		log.info("[REQ] gen token start!");
 		
@@ -61,7 +61,7 @@ public class TokenController {
 			@RequestHeader(value="clientType") String clientType,
 			@RequestHeader(value="username") String username,
 			@RequestHeader(value="password") String password,
-			@RequestHeader(value="subject") String subject) throws JOSEException {
+			@RequestHeader(value="subject") String subject) throws Exception {
 		
 		HttpResponse loginRes = Unirest.post("http://52.231.52.58:31011/api/relay/login")
 			.header("username", username)

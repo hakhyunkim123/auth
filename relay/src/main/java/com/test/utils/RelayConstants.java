@@ -8,7 +8,7 @@ import com.test.dto.VertifyDto;
 public class RelayConstants {
 	
 	public static final String genJWTUrl = "http://52.231.52.58:31011/api/genJwt";
-	public static final String refreshTokenUrl = "http://52.231.52.58:31011/api/refreshToken";
+	public static final String refreshTokenUrl = "http://52.231.52.58:31011/api/updateToken";
 	public static final String ssoLoginUrl = "http://52.231.52.58:31011/api/login";
 	
 //	public static final String genJWTUrl = "http://localhost:8001/api/genJwt";

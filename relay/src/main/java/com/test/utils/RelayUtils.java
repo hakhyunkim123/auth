@@ -37,8 +37,8 @@ public class RelayUtils {
 	
 	public static HttpResponse<String> callRefreshTokenApi(String refreshTokenSerialized) {
 		
-		return Unirest.get(RelayConstants.refreshTokenUrl)
-				.header("refresh", refreshTokenSerialized)
+		return Unirest.post(RelayConstants.refreshTokenUrl)
+				.header("refreshToken", refreshTokenSerialized)
 				.asString();
 	}
 	
@@ -89,8 +89,8 @@ public class RelayUtils {
 			e.printStackTrace();
 		}
 		
-		LocalDateTime expTime = LocalDateTime.ofInstant(expiredTime.toInstant(), ZoneId.systemDefault());
-		LocalDateTime curTime = LocalDateTime.now();
+		LocalDateTime expTime = LocalDateTime.ofInstant(expiredTime.toInstant(), ZoneId.of("Asia/Seoul"));
+		LocalDateTime curTime = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 		
 		System.out.println("expired time: " + expTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 		System.out.println("current time: " + expTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
